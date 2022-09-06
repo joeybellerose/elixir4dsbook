@@ -1,0 +1,232 @@
+# 3 - Data Visualization
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.2.0"},
+  {:vega_lite, "~> 0.1.5"},
+  {:kino, "~> 0.6.1"},
+  {:kino_vega_lite, "~> 0.1.2"}
+])
+```
+
+## 3.1 - Introduction
+
+Why R for Data Science?
+
+* Book - https://r4ds.had.co.nz/data-visualisation.html
+
+Why Elixir?
+
+Stack Overflow 2022 Survey - https://survey.stackoverflow.co/2022
+
+#2 Most Loved Language
+![](images/StackOverflow2022Elixir.png)
+
+#1 Most Loved Web Framework
+![](images/StackOverflow2022Phoenix.png)
+
+Why Elixir For Data Science?
+
+* Data Science in inherently functional
+* Nx - Machine Learning
+  * Thinking Elixir Podcast - Machine Learning https://podcast.thinkingelixir.com/102
+* Explorer - DataFrames
+  * Thinking Elixir Poscast - Exploring Data https://podcast.thinkingelixir.com/104
+
+```elixir
+alias Explorer.{DataFrame, Series}
+alias VegaLite, as: Vl
+```
+
+## 3.2 - First Steps
+
+The datasets can be found at - https://vincentarelbundock.github.io/Rdatasets/datasets.html
+
+The documentation can be found at - https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/mpg.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+Define mpg file path
+
+```elixir
+root = File.cwd!()
+file_path = "/Documents/r4ds/data/mpg.csv"
+
+mpg_file = root <> file_path
+```
+
+#### 3.2.1 The `mpg` data frame
+
+Read in csv file with Explorer
+
+```elixir
+mpg = DataFrame.from_csv!(mpg_file)
+```
+
+### 3.2.2 Creating a plot
+
+Create a scatterplot with Vegalite with Smart Cells with `displ` on x-axis and `hwy` on y-axis
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"displ","x_field_aggregate":null,"x_field_type":"quantitative","y_field":"hwy","y_field_aggregate":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.Vl","width":400},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy"])
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+```
+
+#### 3.2.4 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. What do you see from Vegalite when just passing `mpg` dataset?
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+```
+
+1. How many rows are in `mpg`?  How many columns
+
+```elixir
+mpg
+```
+
+1. What does the `drv` variable describe?
+
+`drv` - the type of drive train, where f = front-wheel drive, r = rear wheel drive, 4 = 4wd
+
+https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/mpg.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. Make a scatterplot of `hwy` vs `cyl`.
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"hwy","x_field_aggregate":null,"x_field_type":"quantitative","y_field":"cyl","y_field_aggregate":null,"y_field_type":"nominal"}],"vl_alias":"Elixir.Vl","width":null},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg, only: ["hwy", "cyl"])
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "hwy", type: :quantitative)
+|> Vl.encode_field(:y, "cyl", type: :nominal)
+```
+
+1. What happens if you make a scatterplot of `class` vs `drv`?
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"bar","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"class","x_field_aggregate":null,"x_field_type":"nominal","y_field":"drv","y_field_aggregate":null,"y_field_type":"nominal"}],"vl_alias":"Elixir.Vl","width":null},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg, only: ["class", "drv"])
+|> Vl.mark(:bar)
+|> Vl.encode_field(:x, "class", type: :nominal)
+|> Vl.encode_field(:y, "drv", type: :nominal)
+```
+
+## 3.3 Aesthetic mappings
+
+Map the colors of the points to the `class` variable
+
+<!-- livebook:{"break_markdown":true} -->
+
+Map the size of the points to the `class` variable
+
+```elixir
+
+```
+
+Map the opacity and the shape of the points to the `class` variable
+
+```elixir
+
+```
+
+Make all of the points blue
+
+Reference - https://vega.github.io/vega-lite/examples/bar_color_disabled_scale.html
+
+```elixir
+# Create color column
+```
+
+### 3.3.1 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. NA
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. Which variables are categorical (string)?  Which variables are continuous (integer and float)?
+
+<!-- livebook:{"break_markdown":true} -->
+
+Elixir currently does not have categorical or factor datatypes like R does.
+
+```elixir
+mpg
+```
+
+1. Map a continuous varable to `color`, `size`, and `shape`.  How do these aesthetics behave differently for categorical vs. continuous variables?
+
+```elixir
+
+```
+
+1. Map the same variable to multiple aesthetics
+
+```elixir
+
+```
+
+1. What does the stroke aesthetic do?
+
+```elixir
+
+```
+
+1. What happens if you map an aesthetic to something other than a variable name?
+
+```elixir
+
+```
+
+## 3.4 Common Problems
+
+## 3.5 Facets
+
+Create a scatterplot that facets based on `class`
+
+```elixir
+
+```
+
+Create a scatterplot that facets based on `drv` and `cyl`
+
+```elixir
+
+```
+
+### 3.3.1 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. What happens if you facet on a continuous variable?
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. What do the empty cells in plot with facet `drv` and `cyl` mean?
+
+## 3.6 Geometric objects
+
+## 3.7 Statistical transformations
+
+## 3.8 Position adjustments
+
+## 3.9 Coordinate systems
+
+## 3.10 The layered grammar of graphics

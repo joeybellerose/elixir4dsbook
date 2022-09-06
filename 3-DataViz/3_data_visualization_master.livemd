@@ -1,0 +1,1182 @@
+# 3 - Data Visualization Master
+
+```elixir
+Mix.install([
+  {:explorer, "~> 0.2.0"},
+  {:vega_lite, "~> 0.1.5"},
+  {:kino, "~> 0.6.2"},
+  {:kino_vega_lite, "~> 0.1.1"},
+  {:jason, "~> 1.3"}
+])
+```
+
+## 3.1 - Introduction
+
+Intro
+
+* We're starting a new series on Elixir for Data Science where we'll be rebuilding all the code from the book R for Data Science with Elixir.
+
+Why R4DS?
+
+* R for Data Science was foundational for me for getting into the field of Data Science.
+* It made Data Science approachable
+* It does a really good job laying out all the tasks a Data Scientist needs to do and not just the glamorous part of creating
+
+Why Elixir For Data Science?
+
+* Data Science is inherently functional
+  * What do I mean?
+    * We're taking data and transforming it through multiple steps for a desired outcome, model, etc...
+    * IMHO this is with the Tidyverse for R is so wonderful
+    * Now imagine where the functional nature of Tidyvers is applied throughout the whole language
+* Stack Overflow 2022 Survey Results
+  ![](images/StackOverflow2022Elixir.png)
+  ![](images/StackOverflow2022Phoenix.png)
+
+Why go through R4DS with ELixir?
+
+* I want to put Elixir through it's paces by recreating all the code in R4DS to see if it can acutually handle a real Data Scientist's workload
+* With that let's install the packages we need
+
+Resources
+
+* Thinking Elixir Podcast - Machine Learning https://podcast.thinkingelixir.com/102
+* Thinking Elixir Poscast - Exploring Data https://podcast.thinkingelixir.com/104
+* Go check out the podcasts to get more detail about where the Elixir Data Science community is and where it's headed
+
+Book - https://r4ds.had.co.nz/data-visualisation.html
+
+```elixir
+alias Explorer.{DataFrame, Series}
+alias VegaLite, as: Vl
+```
+
+## 3.2 - First Steps
+
+The datasets can be found at - https://vincentarelbundock.github.io/Rdatasets/datasets.html
+
+The documentation can be found at - https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/mpg.html
+
+```elixir
+# Get mgp csv file path
+root = File.cwd!()
+data_path = "~/Documents/r4ds/data/"
+file_name = "mpg.csv"
+
+mpg_file = data_path <> file_name
+```
+
+#### 3.2.1 The `mpg` data frame
+
+Read in csv file with Explorer
+
+```elixir
+mpg =
+  DataFrame.from_csv!(mpg_file)
+  # Remove old id column
+  |> DataFrame.select([""], :drop)
+```
+
+### 3.2.2 Creating a plot
+
+Create a scatterplot with Vegalite with Smart Cells with `displ` on x-axis and `hwy` on y-axis
+
+Notes: Smart Cells provide a way to quickly generate charts with a GUI interface and the ability to switch to see the underlying code that it generated.
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"displ","x_field_aggregate":null,"x_field_type":"quantitative","y_field":"hwy","y_field_aggregate":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.Vl","width":400},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy"])
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+```
+
+#### 3.2.4 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 1**
+
+What do you see from Vegalite when just passing `mpg` dataset?
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+```
+
+**Exercise 2**
+
+How many rows are in `mpg`?  How many columns
+
+```elixir
+mpg
+```
+
+**Exercise 3**
+
+What does the `drv` variable describe?
+
+`drv` - the type of drive train, where f = front-wheel drive, r = rear wheel drive, 4 = 4wd
+
+https://vincentarelbundock.github.io/Rdatasets/doc/ggplot2/mpg.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 4**
+
+Make a scatterplot of `hwy` vs `cyl`.
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"point","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"hwy","x_field_aggregate":null,"x_field_type":"quantitative","y_field":"cyl","y_field_aggregate":null,"y_field_type":"nominal"}],"vl_alias":"Elixir.Vl","width":400},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["hwy", "cyl"])
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "hwy", type: :quantitative)
+|> Vl.encode_field(:y, "cyl", type: :nominal)
+```
+
+**Exercise 5**
+
+What happens if you make a scatterplot of `class` vs `drv`?
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":200,"layers":[{"chart_type":"bar","color_field":null,"color_field_aggregate":null,"color_field_type":null,"data_variable":"mpg","x_field":"class","x_field_aggregate":null,"x_field_type":"nominal","y_field":"drv","y_field_aggregate":null,"y_field_type":"nominal"}],"vl_alias":"Elixir.Vl","width":400},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new(width: 400, height: 200)
+|> Vl.data_from_values(mpg, only: ["class", "drv"])
+|> Vl.mark(:bar)
+|> Vl.encode_field(:x, "class", type: :nominal)
+|> Vl.encode_field(:y, "drv", type: :nominal)
+```
+
+## 3.3 Aesthetic mappings
+
+Map the colors of the points to the `class` variable
+
+<!-- livebook:{"attrs":{"chart_title":null,"height":null,"layers":[{"chart_type":"point","color_field":"class","color_field_aggregate":null,"color_field_type":"nominal","data_variable":"mpg","x_field":"displ","x_field_aggregate":null,"x_field_type":"quantitative","y_field":"hwy","y_field_aggregate":null,"y_field_type":"quantitative"}],"vl_alias":"Elixir.Vl","width":400},"kind":"Elixir.KinoVegaLite.ChartCell","livebook_object":"smart_cell"} -->
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "class"])
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "class", type: :nominal)
+```
+
+Map the size of the points to the `class` variable
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "class"])
+|> Vl.mark(:circle)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:size, "class", type: :nominal)
+```
+
+Map the opacity and the shape of the points to the `class` variable
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "class"])
+|> Vl.concat([
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.encode_field(:opacity, "class", type: :nominal),
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.encode_field(:shape, "class", type: :nominal)
+])
+```
+
+Make all of the points blue
+
+```elixir
+# Create color column first
+mpg =
+  mpg
+  |> DataFrame.mutate(color: "blue")
+
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "color"])
+|> Vl.mark(:circle)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "color", type: :nominal, scale: nil)
+```
+
+Ref: Specify Color - https://vega.github.io/vega-lite/examples/bar_color_disabled_scale.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 3.3.1 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 1**
+
+Which variables are categorical?  Which variables are continuous?
+
+Categorical -> String
+
+Continuous -> Integer and Float
+
+```elixir
+mpg
+```
+
+Notes: Elixir currently does not have formal datatypes for categorical or factor like R does.
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 2**
+
+Map a continuous varable to `color`, `size`, and `shape`.  How do these aesthetics behave differently for categorical vs. continuous variables?
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ")
+|> Vl.encode_field(:y, "hwy")
+|> Vl.encode_field(:color, "hwy")
+|> Vl.encode_field(:size, "hwy")
+|> Vl.encode_field(:shape, "hwy")
+```
+
+**Exercise 3**
+
+Map the same variable to multiple aesthetics.
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "hwy", type: :quantitative)
+|> Vl.encode_field(:size, "displ", type: :quantitative)
+```
+
+**Exercise 3**
+
+What does the stroke aesthetic do?
+
+Adjusts the color of the stroke around the mark.
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:stroke, "hwy", type: :quantitative)
+```
+
+Ref: Stroke - https://vega.github.io/vega-lite/docs/encoding.html#mark-pro
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 4**
+
+What happens if you map an aesthetic to something other than a variable name?
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "hwy > 10", type: :quantitative)
+```
+
+## 3.4 Common Problems
+
+## 3.5 Facets
+
+Create a scatterplot that facets based on `class`
+
+Notes:
+
+In order to get a `facet` to wrap based on `columns` you must use the `:facet` channel with the `encode` function as shown below.
+
+Ref:
+
+Facet Docs - https://vega.github.io/vega-lite/docs/facet.html#mapping
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:facet, "class", type: :nominal, columns: 4)
+```
+
+Create a scatterplot that facets based on `drv` and `cyl`
+
+Notes: R uses `.` as a means to ignoring either the rows `. ~ variable` or columns `variable ~ .`. To replicate simply leave out either the row or column encoding channels
+
+Ref: https://hexdocs.pm/vega_lite/VegaLite.html#facet/3
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode(:column, field: "cyl", type: :nominal)
+|> Vl.encode(:row, field: "drv", type: :nominal)
+```
+
+Notes:
+
+It appears to be more straight forward to use the `:facet`, `:column`, and `:row` encoding channels for faceting rather than to use the `facet` function.  I was not able to specify the number of columns with the `facet` function whereas I was able to using the `:facet` encoding channel.
+
+Ref:
+
+Check out the Wrapped Facet - https://vega.github.io/vega-lite/docs/facet.html#facet-full
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 3.5.1 Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 1**
+
+What happens if you facet on a continuous variable?
+
+Notes: Each value for the facet is treated as a separate category
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [field: "hwy", type: "quantitative"],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+**Exercise 2**
+
+What do the empty cells in plot with facet `drv` and `cyl` mean?
+
+Notes: No data exists at the intersection of those two facets.
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [
+    row: [field: "drv", type: "nominal"],
+    column: [field: "cyl", type: "nominal"]
+  ],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+**Exercise 3**
+
+What plots does the following code make?
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [
+    row: [field: "drv", type: "nominal"]
+    # column: [field: "cyl", type: "nominal"]
+  ],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [
+    # row: [field: "drv", type: "nominal"],
+    column: [field: "cyl", type: "nominal"]
+  ],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+**Exercise 4**
+
+Take the first faceted plot in this section:
+
+What are the advantages to using faceting instead of the colour aesthetic?  Faceting provides a nice way to drill down and break plots apart to see specific sub-sections of the data.
+
+What are the disadvantages?  The color aesthetic colors the sub-sections while maintaining the context of the whole dataset which can be lost while faceting.
+
+How might the balance change if you had a larger dataset?  Faceting on larger datasets (especially on fields with many categories) could become unwieldy and difficult for the computer to produce.
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:point)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "class", type: :nominal)
+```
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [field: "class", type: "nominal", columns: 2],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+**Exercise 5**
+
+Read `Vl.facet()`.
+
+What does rows do?  The underlying Vega-Lite package only has a variable to specify the number of columns in a facet.
+
+What does columns do?  Specifies the number of columns that a facet should have.
+
+What other options control the layout of the individual panels?  A facet can also be generated using the `row` and `column` variables to created a 2-D layout of multiple charts.
+
+Ref: https://vega.github.io/vega-lite/docs/facet.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 6**
+
+What faceting with the `row` and `column` variables you should usually put the variable with more unique levels in the columns.
+
+Why?  To maintain visual context of at least one variable being faceted.  It can be difficult to see all the results in one screen with more unique levels being on the rows.
+
+```elixir
+# More unique levels on the columns
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [
+    row: [field: "drv", type: "nominal"],
+    column: [field: "cyl", type: "nominal"]
+  ],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+```elixir
+# More unique levels on the rows
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.facet(
+  [
+    row: [field: "cyl", type: "nominal"],
+    column: [field: "drv", type: "nominal"]
+  ],
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+)
+```
+
+## 3.6 Geometric objects
+
+How are these plots similar?
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.concat([
+  # First Chart
+  Vl.new()
+  |> Vl.mark(:point)
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative, scale: %{zero: false}),
+  # Second Chart
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative, scale: %{zero: false})
+  |> Vl.layers([
+    # First layer creates regression line
+    Vl.new()
+    |> Vl.transform(loess: "hwy", on: "displ")
+    |> Vl.mark(:line),
+
+    # Second layer creates confidence intervals
+    Vl.new()
+    |> Vl.mark(:errorband, extent: "ci", borders: true)
+    |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  ])
+])
+```
+
+Notes:
+
+Creating multiple charts within the same view requires the `concat` function.  Each input is a separate chart.
+
+Creating a regression requires using the `transform` function and passing either
+
+1. `regression` for linear regression or
+2. `loess` for non-parametric regression
+
+Confidence Interval appears to be based on the data points instead of the regression.
+
+Scales can be set to not start at zero with the `%{zero: false}` parameter
+
+Ref:
+
+1. Further reading for Loess: https://towardsdatascience.com/loess-373d43b03564
+2. Vega-Lite confidence Intervals - https://vega.github.io/vega-lite/docs/errorband.html
+3. Vega-lite Regression/LOESS Standard Errors - https://github.com/vega/vega/issues/3289
+4. Scales Not Zero - https://vega.github.io/vega-lite/docs/scale.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+How can we create regressions with different linetypes?
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:stroke_dash, "drv", type: :nominal)
+|> Vl.layers([
+  # First layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone")
+
+  # Second layer creates confidence intervals
+  # Vl.new()
+  # |> Vl.mark(:errorband, extent: "ci", borders: true)
+])
+```
+
+Notes:
+
+`groupby` must have a list passed input to create multiple regression lines from the same data.  Otherwise one regression line will be used for all data.
+
+`interpolate` helps to adjust how the line looks.  Smoothing was applied in the above example
+
+Ref:
+
+Stroke Dash - https://vega.github.io/vega-lite/docs/line.html
+
+Groupby - https://vega.github.io/vega-lite/docs/loess.html
+
+Interpolate - https://vega.github.io/vega-lite/docs/line.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+Provide clarity by overlaying the regression lines on top of the raw data and color it by `drv`
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "drv", type: :nominal)
+|> Vl.layers([
+  # First layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone")
+  |> Vl.encode_field(:stroke_dash, "drv", type: :nominal),
+  # Second layer creates confidence intervals
+  Vl.new()
+  |> Vl.mark(:circle)
+])
+```
+
+Show the progression of the charts already made in one output
+
+```elixir
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.concat([
+  # First Chart
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line),
+  # Second Chart
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone")
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.encode_field(:stroke_dash, "drv", type: :nominal),
+  # Third Chart
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.6)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone")
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.encode_field(:color, "drv", type: :nominal)
+])
+```
+
+Use Layers to display multiple marks in the same plot
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone"),
+  # Second layer creates circles
+  Vl.new()
+  |> Vl.mark(:circle)
+])
+```
+
+Notes:
+
+When using Layers, all encodings will flow dows to the individual layer unless overwritten in the specific layer.
+
+Ref:
+
+Layers - https://hexdocs.pm/vega_lite/VegaLite.html#layers/2
+
+<!-- livebook:{"break_markdown":true} -->
+
+Local Layers provide the ability to display different aesthetics in different layers.
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone"),
+  # Second layer creates circles
+  Vl.new()
+  |> Vl.mark(:circle)
+  |> Vl.encode_field(:color, "class", type: :nominal)
+])
+```
+
+To expand this principle, different data can be used for each layer
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates regression line
+  Vl.new()
+  |> Vl.transform(filter: "datum.class == 'subcompact'")
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, tooltip: true, interpolate: "monotone"),
+  # Second layer creates circles
+  Vl.new()
+  |> Vl.mark(:circle)
+  |> Vl.encode_field(:color, "class", type: :nominal)
+])
+```
+
+Notes:
+
+Transforms provide the ability to `filter` datasets along with many other operations like the regressions previously.  The first layer (line) is selecting only the subcompact cars and then creating a regression.
+
+Transforms can be stacked as shown above.
+
+Ref:
+
+Transforms - https://hexdocs.pm/vega_lite/VegaLite.html#transform/2 and https://vega.github.io/vega-lite/docs/transform.html
+
+Filter - https://vega.github.io/vega-lite/docs/filter.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+### 3.6.1-Exercises
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 1**
+
+What mark should you use to draw a:
+
+Line Chart? line
+![](images/LineChart.png)
+
+Boxplot? boxplot
+![](images/Boxplot.png)
+
+Histogram? bar
+![](images/Histogram.png)
+
+Area Chart? area
+![](images/AreaChart.png)
+
+<!-- livebook:{"break_markdown":true} -->
+
+Ref:
+
+Line - https://vega.github.io/vega-lite/docs/line.html
+
+Boxplot - https://vega.github.io/vega-lite/docs/boxplot.html
+
+Histogram - https://vega.github.io/vega-lite/docs/bar.html
+
+Area - https://vega.github.io/vega-lite/docs/area.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 2**
+
+Run this code in your head and predict what the output will look like.  Then run the code and check your predictions.
+
+<!-- livebook:{"force_markdown":true} -->
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(
+  mpg, 
+  only: ["displ", "hwy", "drv", "class"]
+  )
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "drv", type: :nominal)
+|> Vl.layers([
+  Vl.new()
+  |> Vl.mark(:point),
+  Vl.new()
+  |> Vl.transform(
+    loess: "hwy", 
+    on: "displ", 
+    groupby: ["drv"], 
+    bandwidth: 0.5
+    )
+  |> Vl.mark(:line, interpolate: "monotone")
+  ])
+```
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "drv", type: :nominal)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+**Exercise 3**
+
+What does `legend: nil` do?
+
+What happens if you remove it?
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 4**
+
+What does the `extent` argument to the `errorband` mark do?
+
+`extent` describes how the errorbands will appear relative to the underlying data.  Below are the options available.
+![](images/ErrorbandExtentOptions.png)
+
+Notes:
+
+Currently, the `errorband` mark is only applied to the data and not the regressions as mentioned previously.
+
+Ref:
+
+Errorband - https://vega.github.io/vega-lite/docs/errorband.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+**Exercise 5**
+
+Will these two graphs look different?  Why/why not?
+
+1. ```elixir
+                                             Vl.new(width: 400)
+                                             |> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+                                             |> Vl.encode_field(:x, "displ", type: :quantitative)
+                                             |> Vl.encode_field(:y, "hwy", type: :quantitative)
+                                             |> Vl.layers([
+                                               # First layer creates points
+                                               Vl.new()
+                                               |> Vl.mark(:point),
+                                               # Second layer creates regression line
+                                               Vl.new()
+                                               |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+                                               |> Vl.mark(:line, interpolate: "monotone")
+                                               ])
+   ```
+2. ```elixir
+                                             Vl.new(width: 400)
+                                             |> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+                                             |> Vl.layers([
+                                               # First layer creates points
+                                               Vl.new()
+                                               |> Vl.encode_field(:x, "displ", type: :quantitative)
+                                               |> Vl.encode_field(:y, "hwy", type: :quantitative)
+                                               |> Vl.mark(:point),
+
+                                               # Second layer creates regression line
+                                               Vl.new()
+                                               |> Vl.encode_field(:x, "displ", type: :quantitative)
+                                               |> Vl.encode_field(:y, "hwy", type: :quantitative)
+                                               |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+                                               |> Vl.mark(:line, interpolate: "monotone")
+                                               ])
+   ```
+
+The code above should output the same graphs.  Marks can either be inherited from the top and applied to each layer (1st example) or can be specified at each individual layer (2nd example).
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.mark(:point),
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg, only: ["displ", "hwy", "drv", "class"])
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+**Exercise 6**
+
+Recreate the Elixir code necessary to generate the following graphs.
+
+```elixir
+# Example 1
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.encode_field(:x, "displ", type: :quantitative)
+  |> Vl.encode_field(:y, "hwy", type: :quantitative)
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+```elixir
+# Example 2
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "drv", type: :nominal)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+```elixir
+# Example 3
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.encode_field(:color, "drv", type: :nominal)
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.encode_field(:stroke_dash, "drv", type: :nominal)
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+```elixir
+# Example 4
+Vl.new(width: 400)
+|> Vl.data_from_values(mpg)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.encode_field(:color, "drv", type: :nominal)
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.transform(loess: "hwy", on: "displ", bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+```elixir
+# Example 5
+mpg =
+  mpg
+  |> DataFrame.mutate(color: "green")
+  |> DataFrame.mutate(stroke_width: 2)
+  |> DataFrame.mutate(stroke: "gray")
+
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.mark(:circle)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.encode_field(:color, "drv", type: :nominal)
+|> Vl.encode_field(:stroke_width, "stroke_width", type: :quantitative, scale: nil)
+|> Vl.encode_field(:stroke, "stroke", type: :nominal, scale: nil)
+```
+
+```elixir
+# Example 6
+Vl.new()
+|> Vl.data_from_values(mpg)
+|> Vl.encode_field(:x, "displ", type: :quantitative)
+|> Vl.encode_field(:y, "hwy", type: :quantitative)
+|> Vl.layers([
+  # First layer creates points
+  Vl.new()
+  |> Vl.mark(:point),
+
+  # Second layer creates regression line
+  Vl.new()
+  |> Vl.encode_field(:color, "drv", type: :nominal)
+  |> Vl.transform(loess: "hwy", on: "displ", groupby: ["drv"], bandwidth: 0.5)
+  |> Vl.mark(:line, interpolate: "monotone")
+])
+```
+
+## 3.7 Statistical transformations
+
+We're going to be using the Diamonds dataset for demonstrating statistical analysis.
+
+```elixir
+file_name = "diamonds.csv"
+
+diamonds_file = root <> data_path <> file_name
+
+diamonds = DataFrame.from_csv!(diamonds_file)
+```
+
+Let's check out Bar Charts.
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(diamonds)
+|> Vl.encode_field(:x, "cut", sort: "y")
+|> Vl.encode_field(:y, "cut", aggregate: :count)
+|> Vl.mark(:bar)
+
+# |> Vl.encode(:order, )
+```
+
+Notes:
+
+Sorting `x` by `y` will sort `x` from least to greatest.  To do the opposite, sort by `-y`.
+
+If you want to sort `y` by a different variable than what is used for `x`, then include the `field` parameter.  This will also allow you to change the aggregation type (i.e. `sum`).
+
+Ref:
+
+Encoding Y - https://hexdocs.pm/vega_lite/VegaLite.html#encode/3
+
+Aggregations Docs - https://vega.github.io/vega-lite/docs/aggregate.html
+
+Sorting Docs - https://vega.github.io/vega-lite/docs/sort.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+Create the same chart as above but unsorted.
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(diamonds)
+|> Vl.encode_field(:x, "cut")
+|> Vl.encode(:y, aggregate: :count)
+|> Vl.mark(:bar)
+```
+
+Notes:
+
+`encode_field` is shorthand for `encode`, which maps data fields to visual channels.
+
+Ref:
+
+Encode Field Docs - https://hexdocs.pm/vega_lite/VegaLite.html#encode_field/4
+
+<!-- livebook:{"break_markdown":true} -->
+
+Recreate the first chart but show `y` as the proportion instead of the count.
+
+```elixir
+Vl.new(width: 400)
+|> Vl.data_from_values(diamonds)
+# Calculate counts for each cut
+|> Vl.transform(
+  aggregate: [
+    %{op: "count", field: "cut", as: "Count"}
+  ],
+  groupby: ["cut"]
+)
+# Calculate total count
+|> Vl.transform(joinaggregate: [%{op: "sum", field: "Count", as: "TotalCount"}])
+# Create Percent of Total Count for each cut
+|> Vl.transform(
+  calculate: "datum.Count/datum.TotalCount",
+  as: "PercentofTotal"
+)
+|> Vl.encode_field(:x, "cut", sort: "y")
+|> Vl.encode(
+  :y,
+  type: :quantitative,
+  field: "PercentofTotal",
+  title: "Proportion (%) of Total Count"
+)
+|> Vl.mark(:bar)
+```
+
+Notes:
+
+Transformation order matters.  When attempting to determine the proportional `count` for each bar it can be easy to get tripped up and not generate the graph you want.  VegaLite provides two key transformations to deal with this: `aggregate` and `joinaggregrate`.
+
+Aggregate - "Rolls" up a table based on the fields and operations you provide.  Once done, the new table is transformed and any additional transformations will be done on the new table and NOT the original table.
+
+JoinAggregate - Calculates the aggregated information and joins it to the original table.  The benefit here is that it still provides you all the information of the original table to work with later.
+
+Ref:
+
+Aggregate Docs - https://vega.github.io/vega-lite/docs/aggregate.html
+
+JoinAggregate Docs - https://vega.github.io/vega-lite/docs/joinaggregate.html
+
+<!-- livebook:{"break_markdown":true} -->
+
+Here's what the original diamonds dataset looks like:
+
+```elixir
+diamonds
+```
+
+Below is the dataset returned when aggregating the `cut` field by `count`
+
+```elixir
+diamonds_count = Series.count(diamonds["cut"])
+```
+
+And this is what the joinaggregate looks like:
+
+```elixir
+diamonds
+|> DataFrame.join(
+  diamonds_count,
+  on: [{"cut", "values"}],
+  how: :left
+)
+```
+
+Putting it all together...
+
+Create a `TotalCount` column and add it to the aggregated diamond counts and then create `PercentOfTotal` column for the final result.
+
+```elixir
+diamonds_count
+# Calculate Count for whole column
+|> DataFrame.mutate(TotalCount: &Series.sum(&1["counts"]))
+# Convert TotalCount to Float
+|> DataFrame.mutate(TotalCount: &Series.cast(&1["TotalCount"], :float))
+# Calculate %s - Need vars to be Float
+|> DataFrame.mutate(
+  PercentOfTotal:
+    &Series.divide(
+      &1["counts"],
+      &1["TotalCount"]
+    )
+)
+```
+
+## 3.8 Position adjustments
+
+## 3.9 Coordinate systems
+
+## 3.10 The layered grammar of graphics

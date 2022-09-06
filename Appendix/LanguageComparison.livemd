@@ -1,0 +1,26 @@
+# Data Science Language Comparison
+
+## Data Structures
+
+```elixir
+1..3
+```
+
+| Data Structure | Visual | Fixed Length | Different Types | Enumerable | Key-Value | R Equivalent | Python Equivalent
+|----------------|--------|--------------|-----------------|------------|--------------|--------|-
+|Tuple | {1, :two, "three"} | Yes | Yes | No | No
+|Range | 1..3 | No | No | Yes | No
+|List | [1, "two", 3, :four] | No | Yes | Yes | No
+|Keyword | [{:exit_on_close, true}, {:active, :once}, {:packet_size, 1024}] | Yes (2 Element Tuple) | Yes | Yes | Yes
+|Map | %{"one" => :two, 3 => "four"} | No | Yes | Yes | Yes
+|Mapset| #MapSet<[1, :two, {"three"}]> | No (Elements must be unique) | Yes | Yes | No
+
+```elixir
+:array.set(17, true, :array.new()) |> Enum.count()
+```
+
+## Importing Libraries
+
+## Data Visualization
+
+## Data Cleaning
