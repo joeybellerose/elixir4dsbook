@@ -11,21 +11,20 @@ Mix.install([
 
 ## Introduction
 
-What is Data Transformation -> the process by which you manipulate, edit and clean your data to get it into "shape".
+When it comes to data, people are often looking for answers.  No one collects data just for the fun of it.  Some want to understand what happened in the past while others want a peak in the future.  While there is no crystal ball, you can create educated guesses with models.
 
-Why -> Most data is messy and not ready for use?
+The problem is that most data is messy and can't be used in it's raw form to create high quality models.  This could due to errors in how the data was collected, collecting the wrong kind of data or collecting the data without enough detail to name a few.  Either way, in each scenario you will need to use your Data Transformation skills to manipulate, edit and clean the data to get it into "shape".  The better job you do here, the better you will be able to answer you customers questions about the past and future.
 
-Why -> Maybe the data doesn’t exist
+In the following 6 sections you'll be going over:
 
-Why ->  Maybe there is errors in collecting the data
+* Filtering -> Find subsets within your dataset by keeping or removing rows to focus on the question at hand.
+* Arranging -> Organize your data by sorting one or more columns by asending or descending order.  This is great for dates and time related information.
+* Selecting -> Remove the clutter by keeping relevant columns or remove extraneous columns.
+* Renaming -> Clean up your column names so they are easy to remember and refer to later on.
+* Mutating -> Enhace your dataset by editing existing columns or creating new ones.
+* Summarising -> Summarise your low-level data to create and show your insights.
 
-So we can create visuals - Why?
-
-So we can understand what has happened in the past
-
-So we can create models - Why?
-
-So we can make educated guesses about the future
+In each section you'll be using the `flights` dataset to learn how each step of the Data Trasnformation process works. The dataset can be found [here](https://vincentarelbundock.github.io/Rdatasets/csv/nycflights13/flights.csv) and it's documentation [here](https://vincentarelbundock.github.io/Rdatasets/doc/nycflights13/flights.html).
 
 ```elixir
 alias Explorer.{DataFrame, Series}
@@ -45,11 +44,15 @@ Note: When you initially load the `flights` dataset, you will notice a blank (""
 
 ## Filtering
 
-What is filtering? -> A tranformation method to remove unnecesary or unwanted rows of data.  For example, you may want to only focus on a subset of the total data you have.  Or you may need to remove the `nil`s from your dataset for a model to run properly.  Either way filtering is a commonly used tool in the Data Transformation toolbag.
+Specific questions need specific answers.  The problem is that it's so easy for unwated data to make it's way into your results without you realizing it.  This is where filtering comes in. Filtering is a transformation method to remove unnecesary or unwanted rows of data.  For example, you may want to only focus on a subset of the total data you have.  Or you may need to remove the `nil`s from your dataset for a model to run properly.
+
+Filtering is what helps you to get laser focused on the task at hand.  Typically in response to a question that you are trying to answer.  It prevents unnecessary data from affecting your results later on when you start summarising with counts, sums, and averages.
+
+Without filtering properly, you may produce irrelavant or wrong answers due to "data leaks".  Think of filtering as creating a firewall between the subset of data you need and the rest of the dataset.  Whatever you do to the subset has no affect on the rest of the data.  The reverse of that is also true.  Either way filtering is a commonly used tool in the Data Transformation toolbag.
 
 <!-- livebook:{"break_markdown":true} -->
 
-Find all the flights from January 1st
+A good starting point would be to find all the flights from January 1st
 
 ```elixir
 df
@@ -59,32 +62,35 @@ df
 )
 ```
 
-Saving January 1st flights to a variable
-
-```elixir
-jan1 =
-  df
-  |> DataFrame.filter_with(
-    &(Series.equal(&1["month"], 1)
-      |> Series.and(Series.equal(&1["day"], 1)))
-  )
-```
-
 ### Comparisons
 
 <!-- livebook:{"break_markdown":true} -->
 
-Explorer handles equality for you with the `equal` function so you don't need to worry about using `=` vs `==`.
+Comparison are what you will use to determine if two items are equivalent or not.  If so the comparison will return `true`, and if not, it will return `false`
+
+Explorer handles equality for you with the `equal` function so you don't need to worry about using `=` vs `==` vs `===` like you normally would.
+
+For now, check out the simple example below.
 
 ```elixir
 :math.sqrt(2) |> :math.pow(2) == 2
 ```
 
+Notice how the result is `false`.  ButThe square root of 2 raised to the 2nd power should equal 2.  Why is that?  Looking at the first two operations will give you a hint.
+
+```elixir
+:math.sqrt(2) |> :math.pow(2)
+```
+
+Although the answer should be 2, you can see that it isn't.  This is due to computers having finite memory and needing to cut off the number of decimals they can store.  Thus there is some error introduced due to rounding.
+
+Notice how you have the same problem in the example below.
+
 ```elixir
 1 / 49 * 49 == 1
 ```
 
-Elixir does not have a `near` function to handle whether two numbers are approximately correct.
+Elixir does not have a `near` function, like R does, to handle whether two numbers are approximately correct.
 
 One solution to this problem would be to use the `round` function like this.
 
@@ -101,16 +107,23 @@ One solution to this problem would be to use the `round` function like this.
 (1 / 49 * 49) |> Float.round() == 1
 ```
 
+Notice how using the `round` function, you were able to "undo" the effects of the rouding that the computer made when calculating the formula in the first place.
+
+<!-- livebook:{"break_markdown":true} -->
+
 ### Logical Operators
 
 <!-- livebook:{"break_markdown":true} -->
 
-Reference R4DS
+Logical operators can often be tricky and can get complex quickly when dealing with more than one.  In the book R fo Data Science, there is an excellent [venn diagram](https://r4ds.had.co.nz/transform.html#logical-operators) to help you remember how and(&), or(|) and not(!) work together to create the right combination of two datasets.
+
+<!-- livebook:{"break_markdown":true} -->
+
 ![](https://d33wubrfki0l68.cloudfront.net/01f4b6d39d2be8269740a3ad7946faa79f7243cf/8369a/diagrams/transform-logical.png)
 
 <!-- livebook:{"break_markdown":true} -->
 
-Find all the flights that departed in November or December.
+To start off, find all the flights that departed in November or December.
 
 ```elixir
 df
@@ -122,7 +135,7 @@ df
 
 ...but what if you wanted to also include October?
 
-You can create a pipe within a pipe to solve this by combining the `equal` and `or` functions withing the `Series` module.
+You can create a pipe within a pipe by combining the `equal` and `or` functions withing the `Series` module to solve this.
 
 ```elixir
 df
@@ -133,11 +146,11 @@ df
 )
 ```
 
-Find the flights that weren't delayed (arrival or departure) by more than 2 hours.
+Next, find the flights that weren't delayed (arrival or departure) by more than 2 hours.
 
-As of this writing, you cannot use the `!` to create the opposite of the filter you are creating.  Simply use the opposite function like `less_equal` (<=) instead of `greater` (>).  Or you could use `greater_equal` (>=) instead of `less` (<).
+> Note: As of this writing, you cannot use the `!` to create the opposite of the filter you are creating.  Simply use the opposite function like `less_equal` (<=) instead of `greater` (>).  Or you could use `greater_equal` (>=) instead of `less` (<).
 
-`||` and `&&` will not work in place of `Series.or` and `Series.and` for combining conditions.
+> `||` and `&&` will not work in place of `Series.or` and `Series.and` for combining conditions.
 
 ```elixir
 df
@@ -151,7 +164,7 @@ df
 
 Missing values occur in almost every dataset.  Thus, you need yo have a way to handle and work with them.  Below are a couple functions that you can use with and without DataFrames.
 
-`#N/A` in R are equivalent to `nil` in Elixir.
+`#N/A` in R is equivalent to `nil` in Elixir.
 
 ```elixir
 nil == nil
@@ -165,7 +178,7 @@ x = nil
 is_nil(x)
 ```
 
-`Filter` in Explorer does not automatically remove `nil`s from the dataset.  You must explicitally if you want them removed.
+`Filter` in Explorer does not automatically remove `nil`s from the dataset.  You must explicitally do so if you want them removed.
 
 Note: You can drop all rows with `nil`s by using the `drop_nil` function.
 
@@ -182,6 +195,8 @@ With that, find all the missing `air_time` data.
 df
 |> DataFrame.filter_with(&Series.is_nil(&1["air_time"]))
 ```
+
+Although you may have a feel for how filtering works in Explorer,you've just scratched the surface of what can be done with filtering from the examples above.  If you'd like more examples, you can dig into the [documentation](https://hexdocs.pm/explorer/Explorer.DataFrame.html#filter_with/2).
 
 ## Arrange
 
