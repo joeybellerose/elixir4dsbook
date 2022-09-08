@@ -33,7 +33,7 @@ alias VegaLite, as: Vl
 
 ```elixir
 # Read in Data
-file_path = "~/Documents/r4ds/data/flights.csv"
+file_path = "~/Documents/elixir4ds/data/flights.csv"
 
 df =
   DataFrame.from_csv!(file_path)
@@ -44,15 +44,14 @@ Note: When you initially load the `flights` dataset, you will notice a blank (""
 
 ## Filtering
 
-Specific questions need specific answers.  The problem is that it's so easy for unwated data to make it's way into your results without you realizing it.  This is where filtering comes in. Filtering is a transformation method to remove unnecesary or unwanted rows of data.  For example, you may want to only focus on a subset of the total data you have.  Or you may need to remove the `nil`s from your dataset for a model to run properly.
+Everyone wants to rest easy knowing that they are making the right decision because their decisions are based on data and facts.  The problem is, there is too much data for any one person to consume manually, and the problem is getting worse every day.  Despite this issue, your bosses, clients, and end users still need to make decisions going forward.  How can you help them?
+This is where filtering comes in.  Filtering is what helps you to dig through the mountain of data to find the "diamond in the rough" that can later become a shiny golden nugget.
 
-Filtering is what helps you to get laser focused on the task at hand.  Typically in response to a question that you are trying to answer.  It prevents unnecessary data from affecting your results later on when you start summarising with counts, sums, and averages.
+Filtering is a data transformation method to remove unnecessary or unwanted rows of data.  It prevents unnecessary data from affecting your model results later on, or when you start summarizing with counts, sums, and averages.  For example, you may need to remove the `nil`s from your dataset for a model to run properly.
 
-Without filtering properly, you may produce irrelavant or wrong answers due to "data leaks".  Think of filtering as creating a firewall between the subset of data you need and the rest of the dataset.  Whatever you do to the subset has no affect on the rest of the data.  The reverse of that is also true.  Either way filtering is a commonly used tool in the Data Transformation toolbag.
+Without filtering properly, you may produce irrelevant or wrong answers due to “dirty“ data.  In the same way, most people don’t want a pile of dirt.  It doesn’t help them.  They need your ability to go dig efficiently to find where the gold lies.  Filtering is the preferred tool in your Data Transformation tool-bag to help you find the gems your clients depend on.
 
-<!-- livebook:{"break_markdown":true} -->
-
-A good starting point would be to find all the flights from January 1st
+A good starting point would be to find all the flights from January 1st.
 
 ```elixir
 df
@@ -62,15 +61,23 @@ df
 )
 ```
 
+Let's breakdown the 3 key functions that are used above:
+
+1. `filter_with` -> Filters the rows of the DataFrame based on columns and conditions you provide.
+2. `equal` -> Searches for the value (`1` and `1`) in the columns (`month` and `day`) and return back where are the instances are true.
+3. `and` -> Combines both `equal` searches to find all the instances where both the `month` column == 1 and the `day` column == 1.
+
+<!-- livebook:{"break_markdown":true} -->
+
 ### Comparisons
 
 <!-- livebook:{"break_markdown":true} -->
 
-Comparison are what you will use to determine if two items are equivalent or not.  If so the comparison will return `true`, and if not, it will return `false`
+Comparisons are what you use to determine whether two items are equivalent or not.  If so, the comparison will return `true`, and if not, it will return `false`.
 
-Explorer handles equality for you with the `equal` function so you don't need to worry about using `=` vs `==` vs `===` like you normally would.
+Explorer handles equality for you with the `equal` function (as demonstrated above), so you don't need to worry about using `=` vs `==` vs `===` like you normally would.
 
-For now, check out the simple example below.
+For now, refer to the simple example below for a key point to be aware of when making comparisons.
 
 ```elixir
 :math.sqrt(2) |> :math.pow(2) == 2
@@ -82,7 +89,7 @@ Notice how the result is `false`.  ButThe square root of 2 raised to the 2nd pow
 :math.sqrt(2) |> :math.pow(2)
 ```
 
-Although the answer should be 2, you can see that it isn't.  This is due to computers having finite memory and needing to cut off the number of decimals they can store.  Thus there is some error introduced due to rounding.
+Although the answer should be 2, you can see that it isn't.  This is due to computers having finite memory and needing to limit the number of decimals they can store.  Thus, there is some error introduced due to rounding.
 
 Notice how you have the same problem in the example below.
 
@@ -107,7 +114,7 @@ One solution to this problem would be to use the `round` function like this.
 (1 / 49 * 49) |> Float.round() == 1
 ```
 
-Notice how using the `round` function, you were able to "undo" the effects of the rouding that the computer made when calculating the formula in the first place.
+Notice how, using the `round` function, you were able to "undo" the effects of the rounding that the computer made when calculating the formula in the first place.
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -115,7 +122,7 @@ Notice how using the `round` function, you were able to "undo" the effects of th
 
 <!-- livebook:{"break_markdown":true} -->
 
-Logical operators can often be tricky and can get complex quickly when dealing with more than one.  In the book R fo Data Science, there is an excellent [venn diagram](https://r4ds.had.co.nz/transform.html#logical-operators) to help you remember how and(&), or(|) and not(!) work together to create the right combination of two datasets.
+Logical operators can often be tricky and can get complex quickly when dealing with more than one.  In the book R For Data Science, there is an excellent [Venn diagram](https://r4ds.had.co.nz/transform.html#logical-operators) to help you remember how and(&), or(|) and not(!) work together to create the right combination of two datasets.
 
 <!-- livebook:{"break_markdown":true} -->
 
@@ -133,9 +140,9 @@ df
 )
 ```
 
-...but what if you wanted to also include October?
+…but what if you also wanted to include October?
 
-You can create a pipe within a pipe by combining the `equal` and `or` functions withing the `Series` module to solve this.
+You can create a pipe within a pipe by combining the `equal` and `or` functions within the `Series` module to solve this.
 
 ```elixir
 df
@@ -146,9 +153,9 @@ df
 )
 ```
 
-Next, find the flights that weren't delayed (arrival or departure) by more than 2 hours.
+Next, try finding the flights that weren't delayed (arrival or departure) by more than 2 hours.
 
-> Note: As of this writing, you cannot use the `!` to create the opposite of the filter you are creating.  Simply use the opposite function like `less_equal` (<=) instead of `greater` (>).  Or you could use `greater_equal` (>=) instead of `less` (<).
+> Note: As of this writing, you cannot use the `!` to create the opposite of the filter you are creating.  Simply use the opposite function like `less_equal` (<=) instead of `greater` (>).  Or, you could use `greater_equal` (>=) instead of `less` (<).
 
 > `||` and `&&` will not work in place of `Series.or` and `Series.and` for combining conditions.
 
@@ -162,15 +169,15 @@ df
 
 ### Missing Values
 
-Missing values occur in almost every dataset.  Thus, you need yo have a way to handle and work with them.  Below are a couple functions that you can use with and without DataFrames.
+Missing values occur in almost every dataset.  Thus, you need to have a way to handle and work with them.  Below are a couple functions that you can use with and without DataFrames.
 
-`#N/A` in R is equivalent to `nil` in Elixir.
+`#N/A` in R is equivalent to `nil` in Elixir.  The only difference is, in Elixir, you won't get an error when comparing `nil`s.
 
 ```elixir
 nil == nil
 ```
 
-Check for `nil` with `is_nil`
+You can check for `nil` with `is_nil`.
 
 ```elixir
 x = nil
@@ -178,7 +185,7 @@ x = nil
 is_nil(x)
 ```
 
-`Filter` in Explorer does not automatically remove `nil`s from the dataset.  You must explicitally do so if you want them removed.
+`Filter` in Explorer does not automatically remove `nil`s from the dataset.  You must explicitly do so if you want them removed.
 
 Note: You can drop all rows with `nil`s by using the `drop_nil` function.
 
@@ -187,7 +194,7 @@ df
 |> DataFrame.drop_nil()
 ```
 
-Now, say you didn't want to remove every row with a `nil` from your DataFrame, but simply wanted to remove all the `nil`s from a specific column.  How would you go about that?  This is where the `is_nil` function comes in.  It will find all the `nil` rows in a column so you can either keep or remove them.
+Now, say you wanted to avoid removing every row with a `nil` from your DataFrame, but simply wanted to remove all the `nil`s from a specific column.  How would you go about that?  This is where the `is_nil` function comes in.  It will find all the `nil` rows in a column, so you can either keep or remove them.
 
 With that, find all the missing `air_time` data.
 
@@ -196,7 +203,9 @@ df
 |> DataFrame.filter_with(&Series.is_nil(&1["air_time"]))
 ```
 
-Although you may have a feel for how filtering works in Explorer,you've just scratched the surface of what can be done with filtering from the examples above.  If you'd like more examples, you can dig into the [documentation](https://hexdocs.pm/explorer/Explorer.DataFrame.html#filter_with/2).
+Although you may have a feel for how filtering works in Explorer, you've just scratched the surface of what can be done with filtering from the examples above.  If you'd like more examples, you can dig into the [documentation](https://hexdocs.pm/explorer/Explorer.DataFrame.html#filter_with/2).
+
+In the next post, you'll get to work with sorting your data.
 
 ## Arrange
 
