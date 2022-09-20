@@ -4,7 +4,7 @@ project:
 
 book:
   title: "Elixir For Data Science"
-  author: "Joey Bellerose, Phillip Ramon"
+  author: "Joey Bellerose"
   date: "TBD"
   page-navigation: true
   # sharing: "twitter"
