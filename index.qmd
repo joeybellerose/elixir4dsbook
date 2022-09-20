@@ -1,27 +1,6 @@
 # Preface {.unnumbered}
 
-This is a Quarto book.
+This book is a translation of the original [R For Data Science](https://r4ds.had.co.nz) to Elixir.
 
-To learn more about Quarto books visit <https://quarto.org/docs/books>.
+Inspiration
 
-
-```elixir
-alias VegaLite, as: Vl
-Enum.map(one: "one")
-|> List.first()
-```
-
-Many people live by the adage that "cleanliness is next to Godliness." They find this way of living to be much less stressful. The problem is that Data is similar to the stuff in our lives. It becomes messy once it's out of the box and played with for a while. 
-
-Organizing your information is an important piece of the Data Transformation workflow and takes effort to get your data neat and tidy. Being organized is not just good practice, but will make you more productive as you move further into your analysis.
-Organized data is essential for building models that forecast based on time series data, such as Autoregressive Integrated Moving Average (ARIMA). The model's output would be worthless without being organized by date.
-
-There are three primary scenarios of when you want to sort:
-
-* Date → Show by either the newest or oldest data
-* Number → Show by either the least or greatest number
-* Text → Show by either alphabetical (A-Z) or reverse alphabetical (Z-A) order
-
-Arrange is how you can sort the rows of your dataset into an order you choose. To accomplish this, you'll be using the arrange function.
-In it, you can pass each column you want to sort on along with which way you would like to sort it (i.e., descending or ascending). The dataset is sorted based on the order you provide the columns to the arrange function.
-For example, sort the flights dataset based on month and day in descending order.

@@ -1,20 +1,25 @@
 project:
   type: book
+  output-dir: docs
 
 book:
   title: "Elixir For Data Science"
   author: "Joey Bellerose, Phillip Ramon"
   date: "TBD"
+  page-navigation: true
+  # sharing: "twitter"
+  # open-graph: true
+  # twitter-card:
+  #   site: "@bellerosejoey"
   chapters:
     - index.qmd
     - intro.qmd
     - summary.qmd
     - references.qmd
+    - resources.qmd
 
 #bibliography: references.bib
 
 format:
   html:
     theme: cosmo
-  pdf:
-    documentclass: scrreprt
