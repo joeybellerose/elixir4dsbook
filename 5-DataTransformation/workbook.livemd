@@ -245,25 +245,57 @@ df
 
 ## Select
 
-Select is to columns as Filter is to rows.  Select gives you the ability to choose a subset of columns as shown below.
+It is easy to get distracted with the sheer volume of data you will need to wade through.  Mosts datasets include far more columns than you will end up needing for your analysis.  A perfect example of this would be an `id` column.  You would almost never want to include this column as part of your modeling effort.
 
-Why do you want to select a subset of columns -> Sometimes there may be extraneous data that you simple don't need.  Or maybe you want to focus on a few columns during your analysis and don't want to see all the other columns.  This can be especially useful when looking at large datasets with lots of columns.
+`Select` gives you the ability to choose a subset of columns.  `Select` is to columns what `Filter` is to rows.  This step becomes more useful when you are dealing with more than 100 columns and/or 10s of millions of rows.  This has a two fold effect:
 
-Selecing only the essential columns can help you focus on the task at hand and help refine the problem you are trying to solve.  This is an important process even if you end up keeping many of the other columns.  Getting laser focused on the problem at hand will save you time later on.
+1. Being efficient with you computer memory when working with larger datasets.
+2. Focusing in on the information you actually need to answer the question driving your analysis.
+
+In the sections below you'll see how to
+
+1. Keep Columns
+2. Remove Columns
+3. Select Adjacent Columns
+4. Select Columns using String Functions
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Keeping Columns
+
+To ease your way into using the `select` function, start by keeping only the `year`, `month`, and `day` columns.
 
 ```elixir
 df
 |> DataFrame.select(["year", "month", "day"])
 ```
 
+Note:
+
+Selecting Single Column - You can pass the name of the column name (e.g. `select("year")`).
+
+Selecting Multiple Columns - You will need to pass a list of column names (e.g. `select(["year", "month", "day"])`)
+
+<!-- livebook:{"break_markdown":true} -->
+
+### Removing Columns
+
+<!-- livebook:{"break_markdown":true} -->
+
 One useful option for the `select` function is the `keep_or_drop` parameter.  By default, this parameter is set to `:keep` but you can use `:drop` to remove the columns specified as shown in the example below.
+
+Notice how the columns `year`, `month`, and `day` do not show up in the results
 
 ```elixir
 df
 |> DataFrame.select(["year", "month", "day"], :drop)
 ```
 
-As of the time of this writing, it is not possible to select multiple adjacent columns with the names of the first and last columns like R does `year:day`.  One work around is to specify the numbers for the first and last column that you want like shown below.
+### Selecting Adjacent Columns
+
+<!-- livebook:{"break_markdown":true} -->
+
+As of the time of this writing, it is not possible to select multiple adjacent columns with the names of the first and last columns like R does (e.g. `year:day`).  One work around is to specify the numbers for the first and last column that you want like shown below.
 
 ```elixir
 df
@@ -277,39 +309,43 @@ df
 |> DataFrame.select(0..2, :drop)
 ```
 
-You can use standard Elixir String functions for more flexible ways to `select` columns as shown in the examples below.
+### Selecting with String Functions
 
 <!-- livebook:{"break_markdown":true} -->
 
-`String.starts_with` searches all the column names to see which ones exactly begin with the letters you supply.  Below will find all the column names that start with the letter "d".
+In addition to lists (`["year", "month", "day"]`) and ranges (`0..2`), you can use standard Elixir String functions for more flexible ways to `select` columns as shown in the examples below.
+
+<!-- livebook:{"break_markdown":true} -->
+
+1. `String.starts_with` searches all the column names to see which ones **exactly** begin with the letters you supply.  Below will find all the column names that start with the letter "d".
 
 ```elixir
 df
 |> DataFrame.select(&String.starts_with?(&1, "d"))
 ```
 
-`String.ends_with` searches all the column names to see which ones exactly end with the letters you supply.  Below will find all the columns names that end with the letter "e".
+1. `String.ends_with` searches all the column names to see which ones **exactly** end with the letters you supply.  Below will find all the columns names that end with the letter "e".
 
 ```elixir
 df
 |> DataFrame.select(&String.ends_with?(&1, "e"))
 ```
 
-`String.contains` searches all the column names to see which ones contain anywhere the letters you supply.  Below will find any column name that contains the letter "a".
+1. `String.contains` searches all the column names to see which ones contain anywhere the letters you supply.  Below will find any column name that contains the letter "a".
 
 ```elixir
 df
 |> DataFrame.select(&String.contains?(&1, "a"))
 ```
 
-`String.match` matches the column names based on the regular expression you provide.  Below, will show you all the columns that have `_arr` in their name.
+1. `String.match` matches the column names based on the regular expression you provide.  Below, will show you all the columns that have `_arr` in their name.
 
 ```elixir
 df
 |> DataFrame.select(&String.match?(&1, ~r/_[arr]/))
 ```
 
-As you can see there is a lot of flexibility that Elixir natively gives you for selecting columns.  But there's even more options that what you've seen above.  Simply check out the Elixir String [docs](https://hexdocs.pm/elixir/1.13/String.html) to see what else you can use.
+As you can see there is a lot of flexibility that Elixir natively gives you for selecting columns.  But there's even more options that what you've seen above.  Feel free to check out the Elixir String [docs](https://hexdocs.pm/elixir/1.13/String.html) to see what else you can use.
 
 ## Rename
 
